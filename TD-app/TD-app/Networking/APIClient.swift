@@ -526,6 +526,34 @@ actor APIClient {
     /// The server's fixed page size for `pastEvents(skip:)`.
     static let pastEventsPageSize = 10
 
+    /// Every past event, fetched page by page.
+    ///
+    /// For callers that need the whole list rather than a scrollable window —
+    /// the admin table in particular. `pastEvents(skip:)` serves a single
+    /// 10-row page, so asking for it once yields only the ten most recent.
+    ///
+    /// `skip` advances by the raw row count for the reason `pastEventsPage`
+    /// documents, and the loop stops on the first empty page rather than
+    /// trusting the count endpoint, so a disagreement between the two can't
+    /// spin here forever.
+    func allPastEvents() async throws -> [Event] {
+        var collected: [Event] = []
+        var seen: Set<UUID> = []
+        var skip = 0
+
+        while true {
+            let (events, rowCount) = try await pastEventsPage(skip: skip)
+            guard rowCount > 0 else { break }
+            skip += rowCount
+
+            for event in events where seen.insert(event.eid).inserted {
+                collected.append(event)
+            }
+        }
+
+        return collected
+    }
+
     func pastEventsCount() async throws -> Int {
         try await send(.get, "api/event/past-events/count", as: PastEventsCount.self).count
     }

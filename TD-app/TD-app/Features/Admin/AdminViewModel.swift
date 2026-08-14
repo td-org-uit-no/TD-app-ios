@@ -134,9 +134,11 @@ final class AdminViewModel {
 
         do {
             // The admin table wants everything, not just what's upcoming, so
-            // both lists are merged and shown newest first.
+            // both lists are merged and shown newest first. The past list is
+            // paginated 10 at a time, so it has to be walked to the end —
+            // `pastEvents()` alone would stop at the first page.
             async let upcoming = api.upcomingEvents()
-            async let past = api.pastEvents()
+            async let past = api.allPastEvents()
             events = try await (upcoming + past)
                 .deduplicatedByID()
                 .sorted { $0.date > $1.date }

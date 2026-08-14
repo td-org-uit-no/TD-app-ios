@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(xcodebuild -project TD-app.xcodeproj -scheme TD-app -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build)"
-    ]
-  }
-}

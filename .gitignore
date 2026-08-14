@@ -88,6 +88,9 @@ iOSInjectionProject/
 # macOS
 .DS_Store
 
+# Claude
+.claude
+
 # Xcode Simulator device data
 *.xcuserstate
 

@@ -185,6 +185,6 @@ struct TDTextField: View {
     }
 
     private var prompt: Text {
-        Text(title).foregroundColor(TD.inactiveLabel)
+        Text(title).foregroundStyle(TD.inactiveLabel)
     }
 }

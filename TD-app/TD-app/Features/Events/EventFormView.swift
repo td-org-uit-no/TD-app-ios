@@ -372,61 +372,23 @@ struct EventFormView: View {
     /// PNG only, matching the website's file selector — the backend saves
     /// whatever it receives as `.png` regardless of the real format.
     private var posterPicker: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        // Read out of `@State` here, in the isolated body, rather than inside
+        // the picker's `@Sendable` label closure below. `Binding` is itself
+        // `Sendable`, so the closure captures it without a data-race warning.
+        let poster = $posterData
+
+        return VStack(alignment: .leading, spacing: 8) {
             Text("Bilde")
                 .font(TD.Font.subtitle())
                 .foregroundStyle(TD.inactiveLabel)
 
             PhotosPicker(selection: $posterItem, matching: .images) {
-                HStack(spacing: 10) {
-                    if let posterData, let image = UIImage(data: posterData) {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 44, height: 44)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                    } else {
-                        Image(systemName: "photo")
-                            .font(.system(size: 16))
-                            .foregroundStyle(TD.inactiveLabel)
-                            .frame(width: 44, height: 44)
-                            .background(
-                                TD.surface,
-                                in: RoundedRectangle(cornerRadius: 6)
-                            )
-                    }
-
-                    Text(
-                        posterData == nil
-                            ? "Last opp bilde til arrangementet"
-                            : "Bilde valgt — trykk for å bytte"
-                    )
-                    .font(TD.Font.body())
-                    .foregroundStyle(posterData == nil ? TD.secondary : TD.primary)
-                    .multilineTextAlignment(.leading)
-
-                    Spacer(minLength: 0)
-
-                    if posterData != nil {
-                        Button {
-                            posterItem = nil
-                            posterData = nil
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(TD.inactiveLabel)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    TD.inputBackground,
-                    in: RoundedRectangle(cornerRadius: TD.Radius.input)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: TD.Radius.input)
-                        .strokeBorder(TD.inputBorder, lineWidth: 2)
+                TDImagePickerLabel(
+                    data: poster,
+                    placeholderIcon: "photo",
+                    emptyTitle: "Last opp bilde til arrangementet",
+                    selectedTitle: "Bilde valgt — trykk for å bytte",
+                    onClear: { posterItem = nil }
                 )
             }
         }

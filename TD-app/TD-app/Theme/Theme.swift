@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The website's design tokens, ported from the frontend's
 /// `src/styles/colors.scss` so the app matches td-uit.no exactly.
@@ -320,5 +321,100 @@ struct TDPageHeader<Trailing: View>: View {
 struct TDScreenBackground: View {
     var body: some View {
         TD.background.ignoresSafeArea()
+    }
+}
+
+/// The tappable row shown inside a `PhotosPicker`, previewing the chosen image
+/// and offering a clear button.
+///
+/// This exists as a view rather than as the picker's label closure directly
+/// because `PhotosPicker`'s label parameter is declared `@Sendable` and carries
+/// no actor. Under this target's default `MainActor` isolation, reading a
+/// `TD.*` token or a `@State` value straight from that closure is a data-race
+/// warning in Swift 6. `View.body` *is* main-actor isolated, so moving the
+/// design tokens in here makes the isolation correct rather than suppressed —
+/// the closure is left doing nothing but calling this initialiser.
+///
+/// `selection` is a `Binding` (which is `Sendable`) instead of a value plus a
+/// mutating callback, so the clear button mutates the caller's `@State` from
+/// inside this isolated `body`.
+struct TDImagePickerLabel: View {
+    /// The image bytes to preview, cleared in place by the clear button.
+    @Binding var data: Data?
+    /// Shown when nothing is selected yet.
+    let placeholderIcon: String
+    let emptyTitle: String
+    let selectedTitle: String
+    /// Posters are cropped to fill; logos are fitted so they aren't cut off.
+    let contentMode: ContentMode
+    /// Cleared alongside `data` so the picker can re-offer the same photo.
+    let onClear: @MainActor () -> Void
+
+    /// Explicitly `nonisolated` so the `@Sendable` picker label closure can
+    /// construct this. The synthesised memberwise initialiser would inherit the
+    /// file's default `MainActor` isolation and warn at every call site.
+    nonisolated init(
+        data: Binding<Data?>,
+        placeholderIcon: String,
+        emptyTitle: String,
+        selectedTitle: String,
+        contentMode: ContentMode = .fill,
+        onClear: @escaping @MainActor () -> Void = {}
+    ) {
+        _data = data
+        self.placeholderIcon = placeholderIcon
+        self.emptyTitle = emptyTitle
+        self.selectedTitle = selectedTitle
+        self.contentMode = contentMode
+        self.onClear = onClear
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            if let data, let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
+                    .frame(width: 44, height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+            } else {
+                Image(systemName: placeholderIcon)
+                    .font(.system(size: 16))
+                    .foregroundStyle(TD.inactiveLabel)
+                    .frame(width: 44, height: 44)
+                    .background(
+                        TD.surface,
+                        in: RoundedRectangle(cornerRadius: 6)
+                    )
+            }
+
+            Text(data == nil ? emptyTitle : selectedTitle)
+                .font(TD.Font.body())
+                .foregroundStyle(data == nil ? TD.secondary : TD.primary)
+                .multilineTextAlignment(.leading)
+
+            Spacer(minLength: 0)
+
+            if data != nil {
+                Button {
+                    data = nil
+                    onClear()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(TD.inactiveLabel)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            TD.inputBackground,
+            in: RoundedRectangle(cornerRadius: TD.Radius.input)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: TD.Radius.input)
+                .strokeBorder(TD.inputBorder, lineWidth: 2)
+        )
     }
 }

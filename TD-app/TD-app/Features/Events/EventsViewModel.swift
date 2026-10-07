@@ -140,7 +140,7 @@ final class EventsViewModel {
 
     /// Installs the upcoming list, mirroring `replacePast`.
     private func replaceUpcoming(with events: [Event]) {
-        upcoming = events
+        upcoming = events.sorted {$0.date < $1.date}
     }
 
     /// The first page of past events, plus the total the pagination compares
@@ -163,7 +163,7 @@ final class EventsViewModel {
     /// desynchronises pagination, so they are only ever written here and in
     /// `loadMorePast`.
     private func replacePast(with events: [Event], rowsFetched: Int, total: Int?) {
-        past = events
+        past = events.sorted {$0.date > $1.date}
         pastIDs = Set(events.map(\.eid))
         pastRowsFetched = rowsFetched
         pastTotal = total

@@ -95,7 +95,7 @@ struct ProfileView: View {
                     divider
                     detailRow(
                         "Telefon",
-                        member.phone?.isEmpty == false ? member.phone! : "Ikke oppgitt",
+                        member.phone.flatMap { $0.isEmpty ? nil : $0 } ?? "Ikke oppgitt",
                         icon: "phone",
                         isPlaceholder: member.phone?.isEmpty != false
                     )

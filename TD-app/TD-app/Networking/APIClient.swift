@@ -9,8 +9,8 @@ nonisolated enum APIEnvironment {
 
     var baseURL: URL {
         switch self {
-        case .production:  URL(string: "https://api.td-uit.no")!
-        case .development:       URL(string: "http://localhost:5001")!
+        case .production: URL(staticString: "https://api.td-uit.no")
+        case .development: URL(staticString: "http://localhost:5001")
         }
     }
 
@@ -181,8 +181,8 @@ actor APIClient {
         )
 
         // Endpoints that return no content decode as EmptyResponse.
-        if Response.self == EmptyResponse.self {
-            return EmptyResponse() as! Response
+        if let empty = EmptyResponse() as? Response {
+            return empty
         }
         do {
             return try Self.decoder.decode(Response.self, from: data)
@@ -199,13 +199,18 @@ actor APIClient {
         body: (some Encodable)? = Optional<Never>.none,
         allowRetry: Bool = true
     ) async throws -> Data {
-        var components = URLComponents(
-            url: baseURL.appendingPathComponent(path),
-            resolvingAgainstBaseURL: false
-        )!
+        guard
+            var components = URLComponents(
+                url: baseURL.appendingPathComponent(path),
+                resolvingAgainstBaseURL: false
+            )
+        else { throw APIError.transport(underlying: URLError(.badURL)) }
         if !query.isEmpty { components.queryItems = query }
+        guard let url = components.url else {
+            throw APIError.transport(underlying: URLError(.badURL))
+        }
 
-        var request = URLRequest(url: components.url!)
+        var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let body {
@@ -857,5 +862,16 @@ private extension Data {
     /// is an actor of its own.
     nonisolated mutating func appendUTF8(_ string: String) {
         if let data = string.data(using: .utf8) { append(data) }
+    }
+}
+
+nonisolated extension URL {
+    /// Creates a URL from a hard-coded string. A typo stops the app with a
+    /// clear message the first time the line runs, so it can't reach users.
+    init(staticString: StaticString) {
+        guard let url = URL(string: "\(staticString)") else {
+            preconditionFailure("Invalid URL literal: \(staticString)")
+        }
+        self = url
     }
 }

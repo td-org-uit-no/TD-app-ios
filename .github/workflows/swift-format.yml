@@ -1,0 +1,23 @@
+name: Swift format
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  lint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Use the newest stable Xcode so swift-format matches local Xcode.
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Show swift-format version
+        run: xcrun swift-format --version
+
+      - name: Check formatting
+        run: xcrun swift-format lint --strict --recursive --parallel TD-app

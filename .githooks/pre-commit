@@ -1,0 +1,24 @@
+#!/bin/bash
+# Formats staged Swift files with swift-format before each commit.
+# Enable once per clone: git config core.hooksPath .githooks
+set -euo pipefail
+
+status=0
+while IFS= read -r -d '' file; do
+    if git diff --quiet -- "$file"; then
+        xcrun swift-format format --in-place "$file"
+        git add -- "$file"
+    elif ! xcrun swift-format lint --strict "$file"; then
+        # Partly staged: formatting would also stage the unstaged edits,
+        # so only check it.
+        status=1
+    fi
+done < <(git diff --cached --name-only -z --diff-filter=ACMR -- '*.swift')
+
+if [ "$status" -ne 0 ]; then
+    echo "pre-commit: fix the formatting above (⌃⇧I in Xcode) and stage it." >&2
+elif git diff --cached --quiet; then
+    echo "pre-commit: nothing left to commit after formatting." >&2
+    status=1
+fi
+exit "$status"

@@ -64,9 +64,11 @@ struct ForgotPasswordView: View {
 
     private var form: some View {
         Group {
-            Text("Skriv inn e-postadressen din, så sender vi deg en lenke for å lage et nytt passord.")
-                .font(TD.Font.body())
-                .foregroundStyle(TD.inactiveLabel)
+            Text(
+                "Skriv inn e-postadressen din, så sender vi deg en lenke for å lage et nytt passord."
+            )
+            .font(TD.Font.body())
+            .foregroundStyle(TD.inactiveLabel)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("E-post")
@@ -126,9 +128,11 @@ struct ForgotPasswordView: View {
                     .foregroundStyle(TD.primary)
             }
 
-            Text("Hvis \(trimmedEmail) er registrert hos oss, har vi sendt en lenke dit for å lage et nytt passord.")
-                .font(TD.Font.body())
-                .foregroundStyle(TD.inactiveLabel)
+            Text(
+                "Hvis \(trimmedEmail) er registrert hos oss, har vi sendt en lenke dit for å lage et nytt passord."
+            )
+            .font(TD.Font.body())
+            .foregroundStyle(TD.inactiveLabel)
 
             // The TTL index on `passwordResets` drops the code after 10 minutes,
             // so saying so up front saves a second round trip.
@@ -154,7 +158,8 @@ struct ForgotPasswordView: View {
         } catch {
             // Anything else is a real failure (offline, server down) and is
             // worth telling the user about, since retrying may help.
-            errorMessage = (error as? APIError)?.errorDescription
+            errorMessage =
+                (error as? APIError)?.errorDescription
                 ?? "Kunne ikke sende lenken. Prøv igjen."
         }
     }

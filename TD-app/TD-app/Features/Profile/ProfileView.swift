@@ -224,8 +224,8 @@ struct ProfileView: View {
             Image(systemName: "exclamationmark.triangle.fill")
             Text(
                 penalty == 1
-                ? "Du har én prikk for sen avmelding."
-                : "Du har \(penalty) prikker for sen avmelding."
+                    ? "Du har én prikk for sen avmelding."
+                    : "Du har \(penalty) prikker for sen avmelding."
             )
             .font(TD.Font.subtitle())
         }

@@ -65,7 +65,8 @@ struct SignUpView: View {
     /// later than the current year.
     private var isClassofValid: Bool {
         guard trimmedClassof.count == 4,
-              let year = Int(trimmedClassof) else { return false }
+            let year = Int(trimmedClassof)
+        else { return false }
         return year >= 1968 && year <= Calendar.current.component(.year, from: .now)
     }
 
@@ -221,10 +222,12 @@ struct SignUpView: View {
                         // Set expectations before they submit: the account works
                         // right away, but stays `unconfirmed` until the link is
                         // followed.
-                        Text("Du får en e-post med en bekreftelseslenke. Kontoen din er ubekreftet til du har åpnet den.")
-                            .font(TD.Font.small())
-                            .foregroundStyle(TD.inactiveLabel)
-                            .padding(.top, 2)
+                        Text(
+                            "Du får en e-post med en bekreftelseslenke. Kontoen din er ubekreftet til du har åpnet den."
+                        )
+                        .font(TD.Font.small())
+                        .foregroundStyle(TD.inactiveLabel)
+                        .padding(.top, 2)
                     }
                     .padding(20)
                 }
@@ -336,7 +339,7 @@ struct SignUpView: View {
         let fallback = "Kunne ikke opprette kontoen."
         guard let apiError = error as? APIError else { return fallback }
 
-        if case let .server(status, _) = apiError {
+        if case .server(let status, _) = apiError {
             switch status {
             case 409: return "E-postadressen er allerede i bruk."
             case 400: return "Passordet er ikke sterkt nok."

@@ -78,9 +78,11 @@ struct JoinEventSheet: View {
                         }
 
                         if !event.food, !event.transportation {
-                            Text("Dette arrangementet har ingen valg — trykk meld deg på for å bli med.")
-                                .font(TD.Font.body())
-                                .foregroundStyle(TD.inactiveLabel)
+                            Text(
+                                "Dette arrangementet har ingen valg — trykk meld deg på for å bli med."
+                            )
+                            .font(TD.Font.body())
+                            .foregroundStyle(TD.inactiveLabel)
                         }
 
                         if let errorMessage {

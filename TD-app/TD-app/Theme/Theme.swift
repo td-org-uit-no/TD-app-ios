@@ -235,7 +235,7 @@ struct TDButtonStyle: ButtonStyle {
 
     private var border: Color {
         switch variant {
-        case .primary: TD.offPrimary   // slate.500
+        case .primary: TD.offPrimary  // slate.500
         case .secondary: TD.secondary
         }
     }

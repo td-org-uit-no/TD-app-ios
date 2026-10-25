@@ -164,7 +164,7 @@ final class ImageStore {
                 }
                 let (data, response) = try await session.data(for: request)
                 guard let http = response as? HTTPURLResponse,
-                      (200..<300).contains(http.statusCode)
+                    (200..<300).contains(http.statusCode)
                 else { return nil }
                 // Decoding happens off the main actor: `UIImage(data:)` only
                 // stores the bytes, but the first draw decodes them on whatever
@@ -184,7 +184,8 @@ final class ImageStore {
         if let image {
             // `size` is in points; the bitmap behind it is `scale`× that in each
             // dimension, so costing by points alone understates a 3x image by 9.
-            let pixels = image.size.width * image.size.height
+            let pixels =
+                image.size.width * image.size.height
                 * image.scale * image.scale
             cache.setObject(image, forKey: url as NSURL, cost: Int(pixels) * 4)
         } else {
@@ -220,15 +221,16 @@ final class ImageStore {
         guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions)
         else { return UIImage(data: data) }
 
-        let options = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            // Honour EXIF orientation, as `UIImage(data:)` would.
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            // Only scales down: an image already smaller than the limit is
-            // decoded at its own size rather than being blown up.
-            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
-            kCGImageSourceShouldCacheImmediately: true,
-        ] as CFDictionary
+        let options =
+            [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                // Honour EXIF orientation, as `UIImage(data:)` would.
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                // Only scales down: an image already smaller than the limit is
+                // decoded at its own size rather than being blown up.
+                kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+                kCGImageSourceShouldCacheImmediately: true,
+            ] as CFDictionary
 
         guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(source, 0, options)
         else { return UIImage(data: data) }

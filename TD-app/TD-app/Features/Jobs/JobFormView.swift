@@ -71,7 +71,7 @@ struct JobFormView: View {
         self.mode = mode
         self.onSaved = onSaved
 
-        let job: Job? = if case let .edit(existing) = mode { existing } else { nil }
+        let job: Job? = if case .edit(let existing) = mode { existing } else { nil }
 
         _company = State(initialValue: job?.company ?? "")
         _title = State(initialValue: job?.title ?? "")
@@ -109,7 +109,7 @@ struct JobFormView: View {
     }
 
     private var existingJob: Job? {
-        if case let .edit(job) = mode { return job }
+        if case .edit(let job) = mode { return job }
         return nil
     }
 
@@ -226,7 +226,7 @@ struct JobFormView: View {
         switch (selected, stored) {
         case (nil, nil): .unchanged
         case (nil, _?): .cleared
-        case let (value?, stored) where value != stored: .set(value)
+        case (let value?, let stored) where value != stored: .set(value)
         default: .unchanged
         }
     }
@@ -487,7 +487,8 @@ struct JobFormView: View {
             await onSaved()
             dismiss()
         } catch {
-            errorMessage = (error as? APIError)?.errorDescription
+            errorMessage =
+                (error as? APIError)?.errorDescription
                 ?? "Kunne ikke lagre stillingen."
         }
     }

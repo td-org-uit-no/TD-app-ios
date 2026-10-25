@@ -200,7 +200,7 @@ struct ChangePasswordView: View {
         let fallback = "Kunne ikke endre passordet."
         guard let apiError = error as? APIError else { return fallback }
 
-        if case let .server(status, _) = apiError {
+        if case .server(let status, _) = apiError {
             switch status {
             case 403: return "Feil nåværende passord."
             case 400: return "Det nye passordet er ikke sterkt nok."
@@ -221,11 +221,11 @@ enum PasswordRule: CaseIterable {
 
     var label: String {
         switch self {
-        case .length:    "Minst 8 tegn"
+        case .length: "Minst 8 tegn"
         case .lowercase: "Én liten bokstav"
         case .uppercase: "Én stor bokstav"
-        case .digit:     "Ett tall"
-        case .special:   "Ett spesialtegn (f.eks. ! ? # %)"
+        case .digit: "Ett tall"
+        case .special: "Ett spesialtegn (f.eks. ! ? # %)"
         }
     }
 

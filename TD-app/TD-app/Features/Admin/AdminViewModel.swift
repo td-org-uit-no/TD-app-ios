@@ -64,7 +64,8 @@ final class AdminViewModel {
 
     /// Recomputes everything that depends on `visits`.
     private func refreshVisitDerivations() {
-        visitSeries = visits
+        visitSeries =
+            visits
             .compactMap { point in
                 point.parsedDate.map { (date: $0, count: point.count) }
             }
@@ -121,7 +122,9 @@ final class AdminViewModel {
 
         do {
             members = try await api.allMembers()
-                .sorted { $0.realName.localizedCaseInsensitiveCompare($1.realName) == .orderedAscending }
+                .sorted {
+                    $0.realName.localizedCaseInsensitiveCompare($1.realName) == .orderedAscending
+                }
         } catch {
             membersError = Self.message(for: error)
         }

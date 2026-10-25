@@ -104,7 +104,8 @@ struct KioskSuggestionsView: View {
                 try await APIClient.shared.deleteKioskSuggestion(id: suggestion.id)
                 suggestions.removeAll { $0.id == suggestion.id }
             } catch {
-                errorMessage = (error as? APIError)?.errorDescription
+                errorMessage =
+                    (error as? APIError)?.errorDescription
                     ?? "En ukjent feil skjedde"
             }
         }

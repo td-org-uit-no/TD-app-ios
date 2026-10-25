@@ -61,9 +61,10 @@ struct EditProfileView: View {
     private var isPhoneValid: Bool {
         if trimmedPhone.isEmpty { return true }
         let digits = trimmedPhone.filter(\.isNumber)
-        return digits.count >= 8 && trimmedPhone.allSatisfy {
-            $0.isNumber || $0 == "+" || $0 == " "
-        }
+        return digits.count >= 8
+            && trimmedPhone.allSatisfy {
+                $0.isNumber || $0 == "+" || $0 == " "
+            }
     }
 
     /// Only the fields that differ from what's already stored.
@@ -211,13 +212,17 @@ struct EditProfileView: View {
     private func save() async {
         errorMessage = nil
         let update = pendingUpdate
-        guard !update.isEmpty else { dismiss(); return }
+        guard !update.isEmpty else {
+            dismiss()
+            return
+        }
 
         do {
             try await session.updateMember(update)
             dismiss()
         } catch {
-            errorMessage = (error as? APIError)?.errorDescription
+            errorMessage =
+                (error as? APIError)?.errorDescription
                 ?? "Kunne ikke lagre endringene."
         }
     }

@@ -31,9 +31,12 @@ struct TDBytesView: View {
 
                             if isKioskAdmin {
                                 NavigationLink(value: SuggestionsRoute()) {
-                                    Label("Gå til forslagsoversikt", systemImage: "list.bullet.rectangle")
-                                        .font(TD.Font.body().weight(.semibold))
-                                        .foregroundStyle(TD.secondary)
+                                    Label(
+                                        "Gå til forslagsoversikt",
+                                        systemImage: "list.bullet.rectangle"
+                                    )
+                                    .font(TD.Font.body().weight(.semibold))
+                                    .foregroundStyle(TD.secondary)
                                 }
                             }
                         }

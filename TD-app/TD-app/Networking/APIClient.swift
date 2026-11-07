@@ -423,7 +423,7 @@ actor APIClient {
 
     func adminUpdateMember(id: UUID, update: AdminMemberUpdate) async throws {
         try await send(
-            .put, "api/admin/member/\(id.uuidString.lowercased())",
+            .put, "api/member/\(id.uuidString.lowercased())",
             body: update, as: EmptyResponse.self
         )
     }
@@ -431,7 +431,7 @@ actor APIClient {
     /// Deletes a member. The backend refuses (403) when the target is an admin.
     func deleteMember(id: UUID) async throws {
         try await send(
-            .delete, "api/admin/member/\(id.uuidString.lowercased())",
+            .delete, "api/member/\(id.uuidString.lowercased())",
             as: EmptyResponse.self
         )
     }

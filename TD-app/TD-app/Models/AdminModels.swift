@@ -1,6 +1,6 @@
 import Foundation
 
-/// Body for `PUT /api/admin/member/{id}`.
+/// Body for `PUT /api/member/{id}`.
 ///
 /// Like the member-facing update, the backend applies only truthy values —
 /// except `penalty`, which it special-cases so that `0` (clearing someone's

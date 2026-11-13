@@ -32,7 +32,8 @@ final class JobsViewModel {
         do {
             jobs = try await api.jobs()
         } catch {
-            errorMessage = (error as? APIError)?.errorDescription
+            errorMessage =
+                (error as? APIError)?.errorDescription
                 ?? error.localizedDescription
         }
     }
@@ -70,21 +71,23 @@ struct JobsView: View {
 
     /// Carries the create button for admins, mirroring the events list.
     private var header: some View {
-        TDPageHeader("Stillinger", trailing: {
-            if session.member?.isAdmin == true {
-                Button {
-                    showingCreateJob = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(TD.primary)
-                        .frame(width: 34, height: 34)
-                        .background(TD.red, in: Circle())
+        TDPageHeader(
+            "Stillinger",
+            trailing: {
+                if session.member?.isAdmin == true {
+                    Button {
+                        showingCreateJob = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(TD.primary)
+                            .frame(width: 34, height: 34)
+                            .background(TD.red, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Ny stilling")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Ny stilling")
-            }
-        })
+            })
     }
 
     @ViewBuilder
@@ -294,7 +297,8 @@ struct JobDetailView: View {
                             if let due = current.dueDate {
                                 DetailLine(
                                     icon: "calendar.badge.exclamationmark",
-                                    text: "Søknadsfrist \(due.formatted(.dateTime.day().month(.wide).year()))"
+                                    text:
+                                        "Søknadsfrist \(due.formatted(.dateTime.day().month(.wide).year()))"
                                 )
                             }
                         }
@@ -406,7 +410,8 @@ struct JobDetailView: View {
             // The listing is gone, so this screen has nothing left to show.
             dismiss()
         } catch {
-            errorMessage = (error as? APIError)?.errorDescription
+            errorMessage =
+                (error as? APIError)?.errorDescription
                 ?? "Kunne ikke slette stillingen."
         }
     }

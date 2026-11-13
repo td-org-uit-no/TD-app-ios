@@ -55,7 +55,7 @@ struct EventFormView: View {
         self.mode = mode
         self.onSaved = onSaved
 
-        let event: Event? = if case let .edit(existing) = mode { existing } else { nil }
+        let event: Event? = if case .edit(let existing) = mode { existing } else { nil }
         // A new event defaults to a week out at 18:00 — in the future, which the
         // API requires, and a plausible slot.
         let start = event?.date ?? Self.defaultDate
@@ -112,7 +112,7 @@ struct EventFormView: View {
     }
 
     private var existingEvent: Event? {
-        if case let .edit(event) = mode { return event }
+        if case .edit(let event) = mode { return event }
         return nil
     }
 
@@ -484,7 +484,8 @@ struct EventFormView: View {
             await onSaved()
             dismiss()
         } catch {
-            errorMessage = (error as? APIError)?.errorDescription
+            errorMessage =
+                (error as? APIError)?.errorDescription
                 ?? "Kunne ikke lagre arrangementet."
         }
     }

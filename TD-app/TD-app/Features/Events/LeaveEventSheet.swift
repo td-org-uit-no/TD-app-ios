@@ -42,9 +42,10 @@ struct LeaveEventSheet: View {
         penalty.uiKit.underlineColor = UIColor(penaltyUnderline)
         text.append(penalty)
 
-        text.append(AttributedString(
-            ". To eller flere merknader vil gi nedsatt prioritet på andre arrangementer ut semesteret."
-        ))
+        text.append(
+            AttributedString(
+                ". To eller flere merknader vil gi nedsatt prioritet på andre arrangementer ut semesteret."
+            ))
         return text
     }()
 
@@ -117,10 +118,10 @@ struct LeaveEventSheet: View {
                 .foregroundStyle(TD.warning)
 
             Text(Self.lateWarningText)
-            .font(TD.Font.body())
-            .foregroundStyle(TD.cardTitle)
-            .multilineTextAlignment(.center)
-            .fixedSize(horizontal: false, vertical: true)
+                .font(TD.Font.body())
+                .foregroundStyle(TD.cardTitle)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
             if let host = event.host {
                 Text("Har du gyldig grunn, ta kontakt med \(host)")

@@ -33,6 +33,18 @@ The app is currently in review stage. The project breakdown is shown below:
 ```
 The numbers in the table will change and are given as an estimate.
 
+## Code style
+Swift code is formatted with Apple's swift-format, which ships with Xcode. The rules are in `.swift-format`, and CI rejects pull requests that aren't formatted.
+
+- In Xcode: Editor → Structure → Format File with 'swift-format' (⌃⇧I).
+- Whole project: `xcrun swift-format format --in-place --recursive TD-app`
+
+After cloning, run these once to format staged files on every commit and to hide the formatting commit from `git blame`:
+```sh
+git config core.hooksPath .githooks
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ## Future features
 - Notifications
   - On event/job creation

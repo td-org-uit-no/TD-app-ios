@@ -95,7 +95,7 @@ struct ProfileView: View {
                     divider
                     detailRow(
                         "Telefon",
-                        member.phone?.isEmpty == false ? member.phone! : "Ikke oppgitt",
+                        member.phone.flatMap { $0.isEmpty ? nil : $0 } ?? "Ikke oppgitt",
                         icon: "phone",
                         isPlaceholder: member.phone?.isEmpty != false
                     )
@@ -224,8 +224,8 @@ struct ProfileView: View {
             Image(systemName: "exclamationmark.triangle.fill")
             Text(
                 penalty == 1
-                ? "Du har én prikk for sen avmelding."
-                : "Du har \(penalty) prikker for sen avmelding."
+                    ? "Du har én prikk for sen avmelding."
+                    : "Du har \(penalty) prikker for sen avmelding."
             )
             .font(TD.Font.subtitle())
         }

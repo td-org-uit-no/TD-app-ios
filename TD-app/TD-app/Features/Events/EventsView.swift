@@ -47,21 +47,23 @@ struct EventsView: View {
     // MARK: - Header
 
     private var header: some View {
-        TDPageHeader("Arrangementer", trailing: {
-            if session.member?.isAdmin == true {
-                Button {
-                    showingCreateEvent = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(TD.primary)
-                        .frame(width: 34, height: 34)
-                        .background(TD.red, in: Circle())
+        TDPageHeader(
+            "Arrangementer",
+            trailing: {
+                if session.member?.isAdmin == true {
+                    Button {
+                        showingCreateEvent = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(TD.primary)
+                            .frame(width: 34, height: 34)
+                            .background(TD.red, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Nytt arrangement")
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Nytt arrangement")
-            }
-        })
+            })
     }
 
     /// Custom segmented control — UIKit's segmented picker can't take the

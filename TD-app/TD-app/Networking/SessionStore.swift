@@ -21,7 +21,7 @@ final class SessionStore {
     }
 
     var member: Member? {
-        if case let .signedIn(member) = state { return member }
+        if case .signedIn(let member) = state { return member }
         return nil
     }
 
@@ -49,7 +49,8 @@ final class SessionStore {
             try await api.login(email: email, password: password)
             state = .signedIn(try await api.currentMember())
         } catch {
-            loginError = (error as? APIError)?.errorDescription
+            loginError =
+                (error as? APIError)?.errorDescription
                 ?? error.localizedDescription
             state = .signedOut
         }

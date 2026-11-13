@@ -274,7 +274,8 @@ struct EventDetailView: View {
             // The event is gone, so this screen has nothing left to show.
             dismiss()
         } catch {
-            errorMessage = (error as? APIError)?.errorDescription
+            errorMessage =
+                (error as? APIError)?.errorDescription
                 ?? "Kunne ikke slette arrangementet."
         }
     }

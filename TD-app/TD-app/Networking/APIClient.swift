@@ -9,8 +9,8 @@ nonisolated enum APIEnvironment {
 
     var baseURL: URL {
         switch self {
-        case .production:  URL(string: "https://api.td-uit.no")!
-        case .development:       URL(string: "http://localhost:5001")!
+        case .production: URL(staticString: "https://api.td-uit.no")
+        case .development: URL(staticString: "http://localhost:5001")
         }
     }
 
@@ -38,15 +38,16 @@ nonisolated enum APIError: LocalizedError {
             "You need to log in to do that."
         case .notFound:
             "Not found."
-        case let .server(status, detail):
+        case .server(let status, let detail):
             // A 500 body is Starlette's HTML error page, so `detail` is nil and
             // the raw status alone tells the user nothing actionable.
-            detail ?? (status >= 500
-                ? "The server ran into a problem (\(status)). Please try again."
-                : "The server returned an error (\(status)).")
+            detail
+                ?? (status >= 500
+                    ? "The server ran into a problem (\(status)). Please try again."
+                    : "The server returned an error (\(status)).")
         case .decoding:
             "The server sent something the app didn't understand."
-        case let .transport(error):
+        case .transport(let error):
             error.localizedDescription
         }
     }
@@ -66,7 +67,10 @@ private nonisolated struct APIErrorBody: Decodable {
 }
 
 private nonisolated enum HTTPMethod: String {
-    case get = "GET", post = "POST", put = "PUT", delete = "DELETE"
+    case get = "GET"
+    case post = "POST"
+    case put = "PUT"
+    case delete = "DELETE"
 }
 
 /// Talks to the tdctl-api backend.
@@ -131,13 +135,14 @@ actor APIClient {
             // the fractional-second formats are listed first — before the one
             // that works. The length of the string identifies the format
             // unambiguously here, so one parse is enough.
-            let formatter: DateFormatter? = switch trimmed.count {
-            case 26: formatters[0]  // yyyy-MM-dd'T'HH:mm:ss.SSSSSS
-            case 23: formatters[1]  // yyyy-MM-dd'T'HH:mm:ss.SSS
-            case 19: formatters[2]  // yyyy-MM-dd'T'HH:mm:ss
-            case 10: formatters[3]  // yyyy-MM-dd
-            default: nil
-            }
+            let formatter: DateFormatter? =
+                switch trimmed.count {
+                case 26: formatters[0]  // yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+                case 23: formatters[1]  // yyyy-MM-dd'T'HH:mm:ss.SSS
+                case 19: formatters[2]  // yyyy-MM-dd'T'HH:mm:ss
+                case 10: formatters[3]  // yyyy-MM-dd
+                default: nil
+                }
             if let date = formatter?.date(from: trimmed) { return date }
 
             // An unexpected shape, or a value that didn't parse as the shape
@@ -181,8 +186,8 @@ actor APIClient {
         )
 
         // Endpoints that return no content decode as EmptyResponse.
-        if Response.self == EmptyResponse.self {
-            return EmptyResponse() as! Response
+        if let empty = EmptyResponse() as? Response {
+            return empty
         }
         do {
             return try Self.decoder.decode(Response.self, from: data)
@@ -199,13 +204,18 @@ actor APIClient {
         body: (some Encodable)? = Optional<Never>.none,
         allowRetry: Bool = true
     ) async throws -> Data {
-        var components = URLComponents(
-            url: baseURL.appendingPathComponent(path),
-            resolvingAgainstBaseURL: false
-        )!
+        guard
+            var components = URLComponents(
+                url: baseURL.appendingPathComponent(path),
+                resolvingAgainstBaseURL: false
+            )
+        else { throw APIError.transport(underlying: URLError(.badURL)) }
         if !query.isEmpty { components.queryItems = query }
+        guard let url = components.url else {
+            throw APIError.transport(underlying: URLError(.badURL))
+        }
 
-        var request = URLRequest(url: components.url!)
+        var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let body {
@@ -375,9 +385,10 @@ actor APIClient {
     /// Note the backend matches `email` verbatim rather than lowercasing it, so
     /// the caller must send the address in the same case it was registered with.
     func requestPasswordReset(email: String) async throws {
-        let escaped = email.addingPercentEncoding(
-            withAllowedCharacters: .urlPathAllowed
-        ) ?? email
+        let escaped =
+            email.addingPercentEncoding(
+                withAllowedCharacters: .urlPathAllowed
+            ) ?? email
         try await send(
             .post, "api/member/reset-password/code/\(escaped)",
             as: EmptyResponse.self, allowRetry: false
@@ -463,10 +474,12 @@ actor APIClient {
     func uniqueVisits(from start: Date? = nil, to end: Date? = nil) async throws -> [VisitPoint] {
         var query: [URLQueryItem] = []
         if let start {
-            query.append(URLQueryItem(name: "start", value: Self.statsDateFormatter.string(from: start)))
+            query.append(
+                URLQueryItem(name: "start", value: Self.statsDateFormatter.string(from: start)))
         }
         if let end {
-            query.append(URLQueryItem(name: "end", value: Self.statsDateFormatter.string(from: end)))
+            query.append(
+                URLQueryItem(name: "end", value: Self.statsDateFormatter.string(from: end)))
         }
         return try await send(
             .get, "api/stats/unique-visit", query: query, as: [VisitPoint].self
@@ -516,9 +529,11 @@ actor APIClient {
     /// rows already seen. Callers that paginate must use `rowCount`, not
     /// `events.count`.
     func pastEventsPage(skip: Int = 0) async throws -> (events: [Event], rowCount: Int) {
-        let raw = try await send(.get, "api/event/past-events", query: [
-            URLQueryItem(name: "skip", value: String(skip)),
-        ], as: [Event].self)
+        let raw = try await send(
+            .get, "api/event/past-events",
+            query: [
+                URLQueryItem(name: "skip", value: String(skip))
+            ], as: [Event].self)
 
         return (raw.deduplicatedByID(), raw.count)
     }
@@ -823,14 +838,14 @@ nonisolated struct CreatedJob: Decodable {
     var uuid: UUID? { UUID(hexOrDashed: id) }
 }
 
-private extension UUID {
+extension UUID {
     /// Parses a UUID that may arrive either dashed or as 32 bare hex digits,
     /// which is how the API returns freshly created ids.
     ///
     /// `nonisolated` because the callers are the `nonisolated` decoded
     /// responses above; this is pure string parsing over its argument and
     /// touches no shared state, so it has no reason to be actor-bound.
-    nonisolated init?(hexOrDashed string: String) {
+    fileprivate nonisolated init?(hexOrDashed string: String) {
         if let direct = UUID(uuidString: string) {
             self = direct
             return
@@ -849,13 +864,24 @@ private extension UUID {
     }
 }
 
-private extension Data {
+extension Data {
     /// Appends UTF-8 text, for assembling multipart bodies.
     ///
     /// `nonisolated` because the target defaults to main-actor isolation, which
     /// this would otherwise inherit — and it is called from `APIClient`, which
     /// is an actor of its own.
-    nonisolated mutating func appendUTF8(_ string: String) {
+    fileprivate nonisolated mutating func appendUTF8(_ string: String) {
         if let data = string.data(using: .utf8) { append(data) }
+    }
+}
+
+nonisolated extension URL {
+    /// Creates a URL from a hard-coded string. A typo stops the app with a
+    /// clear message the first time the line runs, so it can't reach users.
+    init(staticString: StaticString) {
+        guard let url = URL(string: "\(staticString)") else {
+            preconditionFailure("Invalid URL literal: \(staticString)")
+        }
+        self = url
     }
 }

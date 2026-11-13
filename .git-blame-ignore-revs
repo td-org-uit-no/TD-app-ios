@@ -1,0 +1,6 @@
+# Commits that only reformat code. GitHub's blame view skips these
+# automatically. For local git blame, run once per clone:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# 🎨 Format codebase with swift-format
+deee49bd0c506939e99566e4d468abfa4eab7b77

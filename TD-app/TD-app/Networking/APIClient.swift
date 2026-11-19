@@ -16,13 +16,14 @@ nonisolated enum APIEnvironment {
 
     /// The active environment.
     ///
-    /// `.local` talks to the tdctl-api container (`./dev_utils.sh compose up -d`
-    /// in ~/Documents/Coding/tdctl-api), seeded with `./dev_utils.sh seed`.
-    /// Log in there as dev_admin@admin.com / Admin!234.
+    /// Always `.production` on master, so builds go to TestFlight without
+    /// changes. Joining an event there puts you on the actual attendee list.
     ///
-    /// Switch to `.production` to hit the real site — note that joining an
-    /// event there puts you on the actual attendee list.
-    static let current: APIEnvironment = .development
+    /// For local testing, switch to `.development` (don't commit it). It talks
+    /// to the tdctl-api container (`./dev_utils.sh compose up -d` in
+    /// ~/Documents/Coding/tdctl-api), seeded with `./dev_utils.sh seed`.
+    /// Log in there as dev_admin@admin.com / Admin!234.
+    static let current: APIEnvironment = .production
 }
 
 nonisolated enum APIError: LocalizedError {
